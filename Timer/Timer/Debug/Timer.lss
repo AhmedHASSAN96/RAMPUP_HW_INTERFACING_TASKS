@@ -1,0 +1,246 @@
+
+Timer.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         00000146  00000000  00000000  00000054  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .data         00000000  00800060  00800060  0000019a  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .comment      00000030  00000000  00000000  0000019a  2**0
+                  CONTENTS, READONLY
+  3 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  000001cc  2**2
+                  CONTENTS, READONLY
+  4 .debug_aranges 00000030  00000000  00000000  00000208  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_info   00000639  00000000  00000000  00000238  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_abbrev 000005a6  00000000  00000000  00000871  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_line   00000285  00000000  00000000  00000e17  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_frame  00000058  00000000  00000000  0000109c  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_str    00000327  00000000  00000000  000010f4  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_loc    0000007b  00000000  00000000  0000141b  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_ranges 00000020  00000000  00000000  00001496  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	0c 94 2a 00 	jmp	0x54	; 0x54 <__ctors_end>
+   4:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+   8:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+   c:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  10:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  14:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  18:	0c 94 8f 00 	jmp	0x11e	; 0x11e <__vector_6>
+  1c:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  20:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  24:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  28:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  2c:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  30:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  34:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  38:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  3c:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  40:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  44:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  48:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  4c:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  50:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+
+00000054 <__ctors_end>:
+  54:	11 24       	eor	r1, r1
+  56:	1f be       	out	0x3f, r1	; 63
+  58:	cf e5       	ldi	r28, 0x5F	; 95
+  5a:	d4 e0       	ldi	r29, 0x04	; 4
+  5c:	de bf       	out	0x3e, r29	; 62
+  5e:	cd bf       	out	0x3d, r28	; 61
+  60:	0e 94 82 00 	call	0x104	; 0x104 <main>
+  64:	0c 94 a1 00 	jmp	0x142	; 0x142 <_exit>
+
+00000068 <__bad_interrupt>:
+  68:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
+
+0000006c <set_TIM1>:
+    }
+}
+
+void set_TIM1(uint16_t compareMatchValue, uint16_t prescalerValue){
+	//disable global interrupts
+	cli();
+  6c:	f8 94       	cli
+	//set the counter register to start counting from 0
+	TCNT1 = 0;
+  6e:	1d bc       	out	0x2d, r1	; 45
+  70:	1c bc       	out	0x2c, r1	; 44
+	//set the compare match value 
+	OCR1A = compareMatchValue /*0x3D08*/;
+  72:	9b bd       	out	0x2b, r25	; 43
+  74:	8a bd       	out	0x2a, r24	; 42
+	//enable the interrupt of compare match A
+	TIMSK |= 1 << OCIE1A;
+  76:	89 b7       	in	r24, 0x39	; 57
+  78:	80 61       	ori	r24, 0x10	; 16
+  7a:	89 bf       	out	0x39, r24	; 57
+	//enable global interrupts
+	sei();
+  7c:	78 94       	sei
+	//set the counter in ClearTimer on Compare match mode CTC 
+	TCCR1A &= ~(1<<1) & ~(1<<0);
+  7e:	8f b5       	in	r24, 0x2f	; 47
+  80:	8c 7f       	andi	r24, 0xFC	; 252
+  82:	8f bd       	out	0x2f, r24	; 47
+	TCCR1B &= ~(1<<4);
+  84:	8e b5       	in	r24, 0x2e	; 46
+  86:	8f 7e       	andi	r24, 0xEF	; 239
+  88:	8e bd       	out	0x2e, r24	; 46
+	TCCR1B |=  (1<<3);
+  8a:	8e b5       	in	r24, 0x2e	; 46
+  8c:	88 60       	ori	r24, 0x08	; 8
+  8e:	8e bd       	out	0x2e, r24	; 46
+	//set the prescaler value
+	switch (prescalerValue)
+  90:	60 34       	cpi	r22, 0x40	; 64
+  92:	71 05       	cpc	r23, r1
+  94:	f1 f0       	breq	.+60     	; 0xd2 <set_TIM1+0x66>
+  96:	38 f4       	brcc	.+14     	; 0xa6 <set_TIM1+0x3a>
+  98:	61 15       	cp	r22, r1
+  9a:	71 05       	cpc	r23, r1
+  9c:	61 f0       	breq	.+24     	; 0xb6 <set_TIM1+0x4a>
+  9e:	68 30       	cpi	r22, 0x08	; 8
+  a0:	71 05       	cpc	r23, r1
+  a2:	81 f0       	breq	.+32     	; 0xc4 <set_TIM1+0x58>
+  a4:	2b c0       	rjmp	.+86     	; 0xfc <set_TIM1+0x90>
+  a6:	61 15       	cp	r22, r1
+  a8:	81 e0       	ldi	r24, 0x01	; 1
+  aa:	78 07       	cpc	r23, r24
+  ac:	c9 f0       	breq	.+50     	; 0xe0 <set_TIM1+0x74>
+  ae:	61 15       	cp	r22, r1
+  b0:	74 40       	sbci	r23, 0x04	; 4
+  b2:	e9 f0       	breq	.+58     	; 0xee <set_TIM1+0x82>
+  b4:	23 c0       	rjmp	.+70     	; 0xfc <set_TIM1+0x90>
+	{
+		case 0:
+			TCCR1B &= ~(1<<2) & ~(1<<1);
+  b6:	8e b5       	in	r24, 0x2e	; 46
+  b8:	89 7f       	andi	r24, 0xF9	; 249
+  ba:	8e bd       	out	0x2e, r24	; 46
+			TCCR1B |= (1<<0);
+  bc:	8e b5       	in	r24, 0x2e	; 46
+  be:	81 60       	ori	r24, 0x01	; 1
+  c0:	8e bd       	out	0x2e, r24	; 46
+			break;
+  c2:	08 95       	ret
+		case 8:
+			TCCR1B &= ~(1<<2) & ~(1<<0);
+  c4:	8e b5       	in	r24, 0x2e	; 46
+  c6:	8a 7f       	andi	r24, 0xFA	; 250
+  c8:	8e bd       	out	0x2e, r24	; 46
+			TCCR1B |= (1<<1);
+  ca:	8e b5       	in	r24, 0x2e	; 46
+  cc:	82 60       	ori	r24, 0x02	; 2
+  ce:	8e bd       	out	0x2e, r24	; 46
+			break;
+  d0:	08 95       	ret
+		case 64:
+			TCCR1B &= ~(1<<2);
+  d2:	8e b5       	in	r24, 0x2e	; 46
+  d4:	8b 7f       	andi	r24, 0xFB	; 251
+  d6:	8e bd       	out	0x2e, r24	; 46
+			TCCR1B |= (1<<1) | (1<<0);
+  d8:	8e b5       	in	r24, 0x2e	; 46
+  da:	83 60       	ori	r24, 0x03	; 3
+  dc:	8e bd       	out	0x2e, r24	; 46
+			break;
+  de:	08 95       	ret
+		case 256:
+			TCCR1B &= ~(1<<1) & ~(1<<0);
+  e0:	8e b5       	in	r24, 0x2e	; 46
+  e2:	8c 7f       	andi	r24, 0xFC	; 252
+  e4:	8e bd       	out	0x2e, r24	; 46
+			TCCR1B |= (1<<2);
+  e6:	8e b5       	in	r24, 0x2e	; 46
+  e8:	84 60       	ori	r24, 0x04	; 4
+  ea:	8e bd       	out	0x2e, r24	; 46
+			break;
+  ec:	08 95       	ret
+		case 1024:
+			TCCR1B &= ~(1<<1);
+  ee:	8e b5       	in	r24, 0x2e	; 46
+  f0:	8d 7f       	andi	r24, 0xFD	; 253
+  f2:	8e bd       	out	0x2e, r24	; 46
+			TCCR1B |= (1<<2) | (1<<0);
+  f4:	8e b5       	in	r24, 0x2e	; 46
+  f6:	85 60       	ori	r24, 0x05	; 5
+  f8:	8e bd       	out	0x2e, r24	; 46
+			break;
+  fa:	08 95       	ret
+		default:
+			TCCR1B &= ~(1<<2) & ~(1<<1) & ~(1<<0);
+  fc:	8e b5       	in	r24, 0x2e	; 46
+  fe:	88 7f       	andi	r24, 0xF8	; 248
+ 100:	8e bd       	out	0x2e, r24	; 46
+ 102:	08 95       	ret
+
+00000104 <main>:
+void set_TIM1(uint16_t compareMatchValue, uint16_t prescalerValue);
+
+int main(void)
+{
+	//set pins 0, 1, and 2 in port B as output pins
+	DDRB  |= (1<<0) | (1<<1) | (1<<2);
+ 104:	87 b3       	in	r24, 0x17	; 23
+ 106:	87 60       	ori	r24, 0x07	; 7
+ 108:	87 bb       	out	0x17, r24	; 23
+	//the output of the pins is low 
+	PORTB &= ~(1<<0) & ~(1<<1) & ~(1<<2);
+ 10a:	88 b3       	in	r24, 0x18	; 24
+ 10c:	88 7f       	andi	r24, 0xF8	; 248
+ 10e:	88 bb       	out	0x18, r24	; 24
+	//call the timer1 function to start the timer --> interrupts every 1 sec
+	set_TIM1(15624,64);
+ 110:	60 e4       	ldi	r22, 0x40	; 64
+ 112:	70 e0       	ldi	r23, 0x00	; 0
+ 114:	88 e0       	ldi	r24, 0x08	; 8
+ 116:	9d e3       	ldi	r25, 0x3D	; 61
+ 118:	0e 94 36 00 	call	0x6c	; 0x6c <set_TIM1>
+ 11c:	ff cf       	rjmp	.-2      	; 0x11c <main+0x18>
+
+0000011e <__vector_6>:
+			TCCR1B &= ~(1<<2) & ~(1<<1) & ~(1<<0);
+	}
+}
+
+//interrupt function
+ISR(TIMER1_COMPA_vect){
+ 11e:	1f 92       	push	r1
+ 120:	0f 92       	push	r0
+ 122:	0f b6       	in	r0, 0x3f	; 63
+ 124:	0f 92       	push	r0
+ 126:	11 24       	eor	r1, r1
+ 128:	8f 93       	push	r24
+ 12a:	9f 93       	push	r25
+	//toggle pins state
+	PORTB ^= (1<<0) ^ (1<<1) ^ (1<<2);
+ 12c:	98 b3       	in	r25, 0x18	; 24
+ 12e:	87 e0       	ldi	r24, 0x07	; 7
+ 130:	89 27       	eor	r24, r25
+ 132:	88 bb       	out	0x18, r24	; 24
+ 134:	9f 91       	pop	r25
+ 136:	8f 91       	pop	r24
+ 138:	0f 90       	pop	r0
+ 13a:	0f be       	out	0x3f, r0	; 63
+ 13c:	0f 90       	pop	r0
+ 13e:	1f 90       	pop	r1
+ 140:	18 95       	reti
+
+00000142 <_exit>:
+ 142:	f8 94       	cli
+
+00000144 <__stop_program>:
+ 144:	ff cf       	rjmp	.-2      	; 0x144 <__stop_program>
